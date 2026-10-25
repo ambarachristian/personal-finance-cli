@@ -1,0 +1,13 @@
+# Virtual environment (Python 3.13 already ignores it, but older tools don't)
+.venv/
+
+# Files Python creates when it runs your code
+__pycache__/
+*.pyc
+
+# Files pytest creates
+.pytest_cache/
+
+# Your real expense data (personal, keep it off GitHub)
+expenses.json
+*.csv
