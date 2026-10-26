@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personal-finance-cli"
+version = "0.1.0"
+description = "Record expenses and print monthly reports from the terminal"
+requires-python = ">=3.12"
+
+[project.scripts]
+spend = "spend:main"
+
+[tool.setuptools]
+py-modules = ["spend"]

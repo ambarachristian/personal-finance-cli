@@ -11,3 +11,6 @@ __pycache__/
 # Your real expense data (personal, keep it off GitHub)
 expenses.json
 *.csv
+
+# Files pip creates when it installs this project
+*.egg-info/
