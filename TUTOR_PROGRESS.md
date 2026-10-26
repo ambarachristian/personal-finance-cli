@@ -1,7 +1,7 @@
 # Tutor progress: Personal finance CLI
 
 ## Where we are
-Milestone 4 of 5 · Step 6 (commit + push). Step given, waiting for the learner's result.
+Milestone 5 of 5 · Steps 5-7 given together, at the learner's request (nan bug test + fix, README, final commit + push), plus the end-of-project review questions. Waiting for "done" and the answers.
 
 ## Environment
 - Windows 11, PowerShell terminal inside VS Code.
@@ -53,6 +53,13 @@ Finished when: `spend add` and `spend report --month 2026-10` work, and 10+ test
 - 2026-10-26 · M4 Step 3 · totals_by_category: done (line 74). Oct 2026 gives {'food': 12.5, 'transport': 5.0, 'coffee': 5.95}.
 - 2026-10-26 · M4 Step 4 · print_report: done (line 81); main's report branch wired. Oct/Sep/Nov and the default month all print correctly. CHECKPOINT: `spend report --month 2026-10` works. Both commands of "finished when" are now met; only 10+ tests remain.
 - 2026-10-26 · M4 Step 5 · CSV export: done. write_report_csv (line 95), --csv on report, main branch updated. october.csv is correct and git-ignored. An empty month writes just the header row.
+- 2026-10-26 · M4 Step 6 · commit: done. 0d15398 "Add the report command with monthly totals and CSV export", pushed, tree clean.
+- MILESTONE 4 DONE.
+- 2026-10-26 · M5 Step 1 · pytest: done. pytest 9.1.1 in .venv; tests/test_spend.py with 2 tests; "2 passed".
+- 2026-10-26 · M5 Step 2 · tmp_path tests: done. 5 passed; real expenses.json still has 7 entries. (The learner dropped the blank line between `import datetime` and `import pytest`. Not mentioned.)
+- 2026-10-26 · M5 Step 3 · fixture + filter/totals tests: done. 9 passed.
+- 2026-10-26 · M5 Step 4 · output tests: done. 12 passed. FINAL CHECKPOINT MET: `spend add` works, `spend report --month 2026-10` works, 10+ tests pass.
+- 2026-10-26 · The learner asked for all remaining steps at once ("give the full remaining of activities"). Gave Steps 5, 6 and 7 in one message, followed by the review questions.
 
 ## Decisions
 - The real data file will be `expenses.json` in the project folder. It is git-ignored (personal data), as are `*.csv` exports.
@@ -67,12 +74,14 @@ Finished when: `spend add` and `spend report --month 2026-10` work, and 10+ test
 - RULE CHANGE (2026-10-26, from the learner): no review questions at the end of each milestone. Collect them and ask them all at the end of the project (after Milestone 5). Each milestone still ends with a commit + push.
 - The `__name__` guard concept is not yet solid. Reinforce it when tests import spend.
 
-## End-of-project review questions (ask after Milestone 5)
-- M1: Without the `if __name__ == "__main__":` guard, what happens on `python spend.py` vs `import spend`? (First two answers were off.)
-- M2: Why does expense_to_dict turn the date into a string? What happens if it doesn't? (json.dumps raises TypeError: Object of type date is not JSON serializable.)
-- M2: When does `except FileNotFoundError:` run in load_expenses, and why not catch every error?
-- M2: The file has 2 expenses; then save_expenses([coffee], path). How many are left, and why? (1, because write_text replaces the file.)
-- Add 1-2 per later milestone (M3 argparse/validation, M4 dict totals/CSV, M5 tmp_path).
+## End-of-project review questions (asked 2026-10-26, along with Steps 5-7)
+1. Without the guard, what would happen when pytest imports spend? (main() runs, argparse reads pytest's arguments, and it errors/exits before any test runs.)
+2. Why does expense_to_dict turn the date into a string? (JSON has no date type; json.dumps would raise TypeError.)
+3. Why does add_expense load first instead of just calling save_expenses([new], path)? (save replaces the whole file, so the old expenses would be lost.)
+4. When does `except FileNotFoundError` run, and why catch only that? (Only when the file is missing; other errors like broken JSON should be visible, not hidden.)
+5. Why `type=float` without () but `default=datetime.date.today()` with ()? (Hand argparse the function to call later vs. call it now and use the result.)
+6. In totals_by_category, what does `totals.get(category, 0)` do the first time a category appears? (Returns 0 because the key isn't there yet.)
+7. Why do the tests use tmp_path instead of DATA_FILE? (A fresh empty folder per test, so the real data is never touched and tests don't affect each other.)
 
 - Conversion uses plain functions `expense_to_dict(expense: Expense) -> dict` and `expense_from_dict(data: dict) -> Expense` (not methods/classmethods, to keep concepts small). Note uses `data.get("note", "")`.
 
@@ -93,10 +102,16 @@ Finished when: `spend add` and `spend report --month 2026-10` work, and 10+ test
 
 - CSV export: `--csv PATH` (type=Path, default None) on report; write_report_csv(totals, path) uses `with path.open("w", newline="", encoding="utf-8")` and csv.writer; header row `category,amount`, amounts formatted "12.50", biggest first, no total row. The CSV path is relative to the current folder (unlike DATA_FILE), and *.csv is git-ignored.
 
-## Next
-Check M4 Step 6: commit "Add the report command with monthly totals and CSV export" (spend.py + TUTOR_PROGRESS.md only), pushed, 4 commits, tree clean. Don't edit TUTOR_PROGRESS.md until checked. Then M5 Step 1: `pip install pytest`, tests/test_spend.py with a first test, `pytest` run.
+- Tests live in tests/test_spend.py and use `import spend` (works because of the editable install). pytest 9.1.1 verified in the scratch copy: "2 passed", configfile pyproject.toml.
 
-## Milestone 5 draft plan
+## Next
+Check Steps 5-7 together:
+- Step 5: test_parse_amount_rejects_nan_and_infinity added (first run: 1 failed, "DID NOT RAISE"); spend.py has `import math` and `if not math.isfinite(amount): raise ... "'{text}' is not a usable amount, e.g. 12.50"` before the `<= 0` check; 13 passed; `spend add nan food` is refused. (Verified in the scratchpad.)
+- Step 6: README.md with setup, usage (add, report, --csv), data location, tests.
+- Step 7: commit "Add pytest tests, reject nan amounts, and write a README" (README.md, tests/test_spend.py, spend.py, TUTOR_PROGRESS.md; no .pytest_cache), pushed, 5 commits.
+Then review the answers to the 7 end-of-project questions, re-explain any that are wrong (especially Q1, the guard), mark the project DONE here, and suggest a final small commit of this file.
+
+## Milestone 5 plan
 1. Install pytest (pip install pytest), create tests/test_spend.py with the first 2 tests (parse_category tidies text; parse_amount rejects <= 0 with pytest.raises), run `pytest`. Note: tests import spend, so the `__name__` guard matters here (revisit the M1 concept).
 2. Storage tests with tmp_path: save → load round trip; load on a missing file gives []; add_expense keeps existing ones.
 3. Report logic tests: filter_by_month (year check), totals_by_category (sum + empty), parse_month/parse_date errors.

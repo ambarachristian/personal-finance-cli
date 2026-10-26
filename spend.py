@@ -4,6 +4,7 @@ import argparse
 import csv
 import datetime
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -107,6 +108,8 @@ def parse_amount(text: str) -> float:
         amount = float(text)
     except ValueError:
         raise argparse.ArgumentTypeError(f"'{text}' is not a number, e.g. 12.50")
+    if not math.isfinite(amount):
+        raise argparse.ArgumentTypeError(f"'{text}' is not a usable amount, e.g. 12.50")
     if amount <= 0:
         raise argparse.ArgumentTypeError(f"must be more than 0, got {text}")
     return amount
