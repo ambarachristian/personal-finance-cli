@@ -1,7 +1,7 @@
 # Tutor progress: Personal finance CLI
 
 ## Where we are
-Milestone 3 of 5 · Step 6 (commit + push). Step given, waiting for the learner's result.
+Milestone 4 of 5 · Step 6 (commit + push). Step given, waiting for the learner's result.
 
 ## Environment
 - Windows 11, PowerShell terminal inside VS Code.
@@ -46,6 +46,13 @@ Finished when: `spend add` and `spend report --month 2026-10` work, and 10+ test
 - 2026-10-26 · M3 Step 3 · validation: done. parse_amount, parse_date, parse_category (lines 58-84) wired into build_parser. All five checks gave the expected messages.
 - 2026-10-26 · M3 Step 4 · save: done. DATA_FILE (line 9), add_expense (lines 60-64), main dispatches on "add". `add 4.75 coffee --note "with Sam"` appended, so expenses.json has 3 entries.
 - 2026-10-26 · M3 Step 5 · spend command: done. pyproject.toml created; `*.egg-info/` added to .gitignore; `pip install -e .` gave .venv\Scripts\spend.exe. `spend add` works, including from the parent folder (data stays in the project; expenses.json has 5 entries). CHECKPOINT: `spend add` works (half of "finished when").
+- 2026-10-26 · M3 Step 6 · commit: done. 108efad "Add the add command with validation and a spend entry point" (4 files), pushed, tree clean. First use of `git add .`.
+- MILESTONE 3 DONE.
+- 2026-10-26 · M4 Step 1 · report + --month: done. parse_month (line 95), report subparser, `elif` in main printing args. All checks matched; help lists {add,report}.
+- 2026-10-26 · M4 Step 2 · filter_by_month: done (line 66, list comprehension). Test data added: 30 food 2026-09-15 "september test", 7 coffee 2025-10-03. expenses.json now has 7 entries; Oct 2026 has 5.
+- 2026-10-26 · M4 Step 3 · totals_by_category: done (line 74). Oct 2026 gives {'food': 12.5, 'transport': 5.0, 'coffee': 5.95}.
+- 2026-10-26 · M4 Step 4 · print_report: done (line 81); main's report branch wired. Oct/Sep/Nov and the default month all print correctly. CHECKPOINT: `spend report --month 2026-10` works. Both commands of "finished when" are now met; only 10+ tests remain.
+- 2026-10-26 · M4 Step 5 · CSV export: done. write_report_csv (line 95), --csv on report, main branch updated. october.csv is correct and git-ignored. An empty month writes just the header row.
 
 ## Decisions
 - The real data file will be `expenses.json` in the project folder. It is git-ignored (personal data), as are `*.csv` exports.
@@ -84,12 +91,23 @@ Finished when: `spend add` and `spend report --month 2026-10` work, and 10+ test
 
 - pyproject.toml: setuptools backend, name "personal-finance-cli", version 0.1.0, requires-python >=3.12, [project.scripts] spend = "spend:main", [tool.setuptools] py-modules = ["spend"]. Tested in the scratchpad: the editable install works, spend.exe runs from another folder, and the data file lands next to spend.py. The install creates `personal_finance_cli.egg-info/`, so `*.egg-info/` is added to .gitignore. pip prints a "new release available" notice, which is harmless.
 
-## Next
-Check M3 Step 6: commit "Add the add command with validation and a spend entry point" contains .gitignore, pyproject.toml, spend.py, TUTOR_PROGRESS.md (learner uses `git add .` for the first time, after checking git status); pushed; 3 commits; working tree clean. Don't edit TUTOR_PROGRESS.md until checked. Then M4 Step 1: report subcommand with --month (parse_month to (year, month), validation).
+- CSV export: `--csv PATH` (type=Path, default None) on report; write_report_csv(totals, path) uses `with path.open("w", newline="", encoding="utf-8")` and csv.writer; header row `category,amount`, amounts formatted "12.50", biggest first, no total row. The CSV path is relative to the current folder (unlike DATA_FILE), and *.csv is git-ignored.
 
-## Milestone 4 draft plan
-1. `report` subparser with `--month YYYY-MM` (parse_month returns the text after validating; default = current month)
-2. filter_by_month(expenses, month) returns a list (a list comprehension, introduced here)
+## Next
+Check M4 Step 6: commit "Add the report command with monthly totals and CSV export" (spend.py + TUTOR_PROGRESS.md only), pushed, 4 commits, tree clean. Don't edit TUTOR_PROGRESS.md until checked. Then M5 Step 1: `pip install pytest`, tests/test_spend.py with a first test, `pytest` run.
+
+## Milestone 5 draft plan
+1. Install pytest (pip install pytest), create tests/test_spend.py with the first 2 tests (parse_category tidies text; parse_amount rejects <= 0 with pytest.raises), run `pytest`. Note: tests import spend, so the `__name__` guard matters here (revisit the M1 concept).
+2. Storage tests with tmp_path: save → load round trip; load on a missing file gives []; add_expense keeps existing ones.
+3. Report logic tests: filter_by_month (year check), totals_by_category (sum + empty), parse_month/parse_date errors.
+4. Output tests: print_report with capsys; write_report_csv content via tmp_path. That reaches 10+ tests.
+5. "A test finds a bug": test that `nan` is rejected; it fails; fix parse_amount with math.isfinite; it passes.
+6. README.md with install + usage examples; requirements / dev note for pytest.
+7. Commit + push; final checkpoint; end-of-project review questions.
+
+## Milestone 4 plan
+1. `report` subparser with `--month YYYY-MM`: parse_month returns the first day of the month as a date; the default is the current month
+2. filter_by_month(expenses, month) returns a list (compare .year and .month; a list comprehension is introduced here)
 3. totals_by_category(expenses) returns a dict (dict.get(key, 0) + amount), sorted by total
 4. print_report: aligned table with f-string widths (`{name:<15}{total:>10.2f}`), plus a grand total line
 5. --csv PATH option: write the report rows with csv.writer and `with path.open("w", newline="", encoding="utf-8")`
